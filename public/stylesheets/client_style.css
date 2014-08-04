@@ -1,0 +1,10 @@
+.container {
+	margin: 50px 0 0 0;
+}
+#quoteWrapper {
+	margin: 20px 0 20px 0;
+	padding: 5px 10px;
+	border:1px solid silver;
+	border-radius: 3px;
+	height: 125px;
+}

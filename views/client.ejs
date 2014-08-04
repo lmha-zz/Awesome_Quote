@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Awesome Quote</title>
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="/public/stylesheets/client_style.css">
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	io = io.connect();
+	$(document).ready(function() {
+		$('button').click(function() {
+			io.emit('request_quote');
+		})
+	})
+	io.on('send_quote', function(quote) {
+		$('#quoteWrapper').html(quote)
+	})
+	</script>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-6 col-sm-offset-3">
+				<button class="col-sm-12 btn btn-default">Give me an awesome quote!!!!</button>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 col-sm-offset-3">
+				<div id="quoteWrapper" class='text-center'></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-sm-6 col-sm-offset-3">
+				<button class="btn btn-default pull-right">Give me a New Quote!</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>
