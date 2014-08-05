@@ -3,8 +3,29 @@ input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none; 
   margin: 0; 
 }
+.btn-default {
+	background-color:#f5f5f5;
+}
 .container {
 	margin: 50px 0 0 0;
+}
+.success {
+	color: green;
+}
+.error {
+	color: red;
+}
+#mathAnswersWrapper {
+	margin: 50px 0 0 0;
+	border:1px solid #ccc;
+	width: 200px;
+	height: 200px;
+	float:right;
+	bottom:0;
+}
+#mathAnswers {
+	overflow: auto;
+	height: 157px;
 }
 #quoteWrapper {
 	margin: 20px 0 20px 0;

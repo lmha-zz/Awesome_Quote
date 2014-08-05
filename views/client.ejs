@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Awesome Quote</title>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	<script src="//code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 	<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 	<link rel="stylesheet" href="/public/stylesheets/client_style.css">
@@ -11,6 +12,20 @@
 	<script>
 	io = io.connect();
 	$(document).ready(function() {
+		$('#chooseRoom').modal('show');
+		$('#geekRoom').click(function() {
+			var room = 'Geeks';
+			var name = $('#name').val();
+			io.emit('join_room', { room: room, name: name });
+			$('#roomCategory').html(room);
+		})
+		$('#artistRoom').click(function() {
+			var room = 'Artists';
+			var name = $('#name').val();
+			io.emit('join_room', { room: room, name: name });
+			$('#roomCategory').html(room);
+		})
+		$('#mathAnswersWrapper').draggable();
 		$('.request_quote').click(function() {
 			io.emit('request_quote');
 		})
@@ -24,17 +39,61 @@
 			io.emit('submit_math_equation_answer', answer);
 		})
 	})
+	io.on('previous_equations', function(previous) {
+		for(var i = 0; i < previous.length; i++) {
+			if(previous[i][0].flag == false) {
+				html = "<p>"+previous[i][1].name+": <span class='error'>"+previous[i][2].equation+"</span></p>";
+			} else {
+				html = "<p>"+previous[i][1].name+": <span class='success'>"+previous[i][2].equation+"</span></p>";
+			}
+			$('#mathAnswers').append(html);
+		}
+		scrollToBottom('mathAnswers');
+	})
 	io.on('send_quote', function(quote) {
 		$('#quoteWrapper').html(quote);
 	})
 	io.on('send_math_equation', function(math) {
-		html = "<p>"+math.message+"</p>\n"+
-			   math.num1+" + "+math.num2+" = <input id='answer' type='number' name='answer'>";
+		if(math.flag == 'Geeks') {
+			html = "<p>"+math.message+"</p>\n"+
+			   		math.num1+" * "+math.num2+" = <input id='answer' type='number' name='answer'>";
+		} else if (math.flag == 'Artists') {
+			html = "<p>"+math.message+"</p>\n"+
+			  		 math.num1+" + "+math.num2+" = <input id='answer' type='number' name='answer'>";
+		}
 		$('#math_modal').html(html);
 	})
+
+	io.on('answer_log', function(data) {
+		$('#mathAnswers').append(data);
+		scrollToBottom('mathAnswers');
+	})
+
 	io.on('wrong_answer', function(err) {
 		$('#quoteWrapper').html("<p>"+err+"</p>");
 	})
+
+	function scrollToBottom(elm_id) {
+		var elm = document.getElementById(elm_id);
+		try {
+			elm.scrollTop = elm.scrollHeight;
+		}
+		catch(e) {
+			var f = document.createElement("input");
+			if (f.setAttribute)
+				f.setAttribute("type","text")
+			if (elm.appendChild) {
+				elm.appendChild(f);
+				f.style.width = "0px";
+				f.style.height = "0px";
+			}
+			if (f.focus)
+				f.focus();
+			if (elm.removeChild)
+				elm.removeChild(f);
+		}
+	}
+
 	</script>
 </head>
 <body>
@@ -54,6 +113,11 @@
 				<button class="btn btn-default pull-right request_quote" data-toggle="modal" data-target="#myModal">Give me a New Quote!</button>
 			</div>
 		</div>
+		<div id='mathAnswersWrapper' class="panel panel-default">
+			<div class="panel-heading">Latest <span id="roomCategory"></span> Answers</div>
+			<div id='mathAnswers' class="panel-body"></div>
+		</div>
+
 		<!-- Modal -->
 		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-dialog">
@@ -64,6 +128,23 @@
 					<div id="math_modal" class="modal-body"></div>
 					<div class="modal-footer">
 						<button id="submit_answer" type="button" class="btn btn-primary" data-dismiss="modal">Submit Answer</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Modal -->
+		<div class="modal fade" id="chooseRoom" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title text-center" id="myModalLabel">Choose a room to enter:</h4>
+					</div>
+					<div id="room_modal" class="modal-body text-center">
+						Please type your name: <input id='name' type="text" name="name">
+					</div>
+					<div class="modal-footer text-center">
+						<button id="geekRoom" type="button" class="btn btn-primary" data-dismiss="modal">Geeks</button>
+						<button id="artistRoom" type="button" class="btn btn-primary" data-dismiss="modal">Artists</button>
 					</div>
 				</div>
 			</div>
