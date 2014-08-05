@@ -22,14 +22,30 @@ module.exports = function Route(app) {
 				  'Eighty percent of success is showing up. –Woody Allen'];
 	
 	var index = 0;
+	var answer;
 
 	app.get('/', function(req, res) {
 		res.render('client');
 	})
 
 	app.io.route('request_quote', function(req, res) {
-		index = randomIndex();
-		req.io.emit('send_quote', quotes[index]);
+		var a = Math.floor(Math.random()*100);
+		var b = Math.floor(Math.random()*100);
+		answer = a+b;
+		req.io.emit('send_math_equation', {
+			num1: a,
+			num2: b,
+			message: 'I will give you an awesome quote if you can correctly answer the following math question:'
+		})
+	})
+
+	app.io.route('submit_math_equation_answer', function(req, res) {
+		if(answer == req.data) {
+			index = randomIndex();
+			req.io.emit('send_quote', quotes[index]);
+		} else {
+			req.io.emit('wrong_answer', "You answered the math equation incorrectly. Please request a quote again.")
+		}
 	})
 
 	function randomIndex() {

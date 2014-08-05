@@ -11,12 +11,29 @@
 	<script>
 	io = io.connect();
 	$(document).ready(function() {
-		$('button').click(function() {
+		$('.request_quote').click(function() {
 			io.emit('request_quote');
+		})
+		$(document).on('keypress', '#answer', function(e){
+			if(e.which == 13) {
+				return false;
+			}
+		})
+		$(document).on('click', '#submit_answer', function(){
+			var answer = $('#answer').val();
+			io.emit('submit_math_equation_answer', answer);
 		})
 	})
 	io.on('send_quote', function(quote) {
-		$('#quoteWrapper').html(quote)
+		$('#quoteWrapper').html(quote);
+	})
+	io.on('send_math_equation', function(math) {
+		html = "<p>"+math.message+"</p>\n"+
+			   math.num1+" + "+math.num2+" = <input id='answer' type='number' name='answer'>";
+		$('#math_modal').html(html);
+	})
+	io.on('wrong_answer', function(err) {
+		$('#quoteWrapper').html("<p>"+err+"</p>");
 	})
 	</script>
 </head>
@@ -24,7 +41,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-sm-6 col-sm-offset-3">
-				<button class="col-sm-12 btn btn-default">Give me an awesome quote!!!!</button>
+				<button class="col-sm-12 btn btn-default request_quote" data-toggle="modal" data-target="#myModal">Give me an awesome quote!!!!</button>
 			</div>
 		</div>
 		<div class="row">
@@ -34,7 +51,21 @@
 		</div>
 		<div class="row">
 			<div class="col-sm-6 col-sm-offset-3">
-				<button class="btn btn-default pull-right">Give me a New Quote!</button>
+				<button class="btn btn-default pull-right request_quote" data-toggle="modal" data-target="#myModal">Give me a New Quote!</button>
+			</div>
+		</div>
+		<!-- Modal -->
+		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h4 class="modal-title" id="myModalLabel">Math Equation</h4>
+					</div>
+					<div id="math_modal" class="modal-body"></div>
+					<div class="modal-footer">
+						<button id="submit_answer" type="button" class="btn btn-primary" data-dismiss="modal">Submit Answer</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
